@@ -8,7 +8,7 @@ An independent Roblox prototype scaffold for a multiplayer industrial economy. T
 - Hybrid art direction: realistic industrial environments and stylized characters.
 - Third-person camera.
 - Shared, world-level economy and company inventory.
-- One authoritative simulation service owns production and transactions.
+- Server-owned services apply production and transactions.
 
 ## Requirements
 
@@ -36,11 +36,11 @@ The scaffold deliberately contains no place file or Roblox credentials. Roblox S
 
 ## Security and authority
 
-Clients send intent only. Server handlers validate payload types, bounds, player state, rate limits, ownership, and available funds/resources before changing state. Shared modules contain deterministic rules; clients never compute authoritative balances or production results. Remote instances are server-created with explicit names. Any future marketplace, trade, or ownership transfer must be implemented as an atomic server transaction with an idempotency key.
+Clients send intent only. Server handlers validate payload types, bounds, rate limits, and available funds/resources before changing state. Unsupported action types are ignored. Shared modules contain deterministic rules; clients never compute authoritative balances or production results. Remote instances are server-created with explicit names. Any future marketplace, trade, or ownership transfer must be implemented as an atomic server transaction with an idempotency key.
 
 ## Persistence notes
 
-`DataStoreAdapter` is an interface boundary with `UpdateAsync`, bounded retries, per-key serialization, and safe failure behavior. Roblox DataStore calls only run on the server. Keep payloads versioned and small, handle throttling and outages, and do not acknowledge a durable transaction until its state is saved. A shared economy spanning multiple servers needs a durable ledger/outbox design and reconciliation; a single DataStore key is not a cross-key transaction. This scaffold provides idempotency foundations, not a production-grade distributed economy.
+`DataStoreAdapter` is an interface boundary with `UpdateAsync`, bounded retries, and safe failure behavior. Roblox DataStore calls only run on the server. Keep payloads versioned and small, handle throttling and outages, and do not acknowledge a durable transaction until its state is saved. A shared economy spanning multiple servers needs a durable ledger/outbox design and reconciliation; a single DataStore key is not a cross-key transaction. This scaffold provides idempotency foundations, not a production-grade distributed economy.
 
 ## GitHub setup
 
