@@ -12,29 +12,34 @@ An independent Roblox prototype scaffold for a multiplayer industrial economy. T
 
 ## Requirements
 
-- Roblox Studio
+- Roblox Studio (only needed for visual iteration and publishing)
 - [Rokit](https://github.com/rojo-rbx/rokit) toolchain manager
 - [Rojo](https://rojo.space/) 7.x
-- [Lune](https://lune-org.github.io/) for the standalone domain tests
+- [Lune](https://lune-org.github.io/) for standalone domain tests
 
 ## Local workflow
 
 1. Clone this repository and switch to `initial-scaffold` if your clone did not check it out automatically.
 2. Install Rokit using its official setup instructions, then run `rokit install` in the project folder to install the pinned Rojo and Lune versions from `rokit.toml`.
-3. Run `lune run tests/run.luau` for domain tests.
-4. Run `rojo plugin install` once to install the Studio plugin, then run `rojo serve` from the project folder.
-5. In Studio, create or open a new place, open the Rojo plugin, connect it to the running server, and sync the project.
+3. Run `lune run tests/run.luau` for domain tests. This works without Roblox Studio.
+4. Run `rojo build default.project.json -o outputs/IndustrialFrontier.rbxlx` to create a place model for later Studio use.
+5. When a graphics-capable machine is available, install the Rojo Studio plugin and connect it to `rojo serve`.
 6. Enable **Studio Access to API Services** only in a separate test experience when validating DataStore integration. Never test persistence against production keys.
-7. Publish the place from Studio and configure experience access, collaborators, and private server settings there.
 
-The scaffold deliberately contains no place file or Roblox credentials. Roblox Studio execution, publishing, DataStore access, and live multiplayer behavior have not been validated here.
+The scaffold deliberately contains no Roblox credentials. Roblox Studio execution, publishing, DataStore access, and live multiplayer behavior have not been validated here.
 
 ## Layout
 
-- `src/shared`: typed domain rules and definitions shared by server and client.
-- `src/server`: server-owned transaction, production, remote, and persistence adapters.
+- `src/shared`: deterministic domain rules and definitions shared by server and client.
+- `src/server`: server-owned transaction, production, building, remote, and persistence adapters.
 - `src/client`: client presentation and third-person camera setup.
-- `tests`: deterministic Lune tests for inventory, production, and transaction idempotency.
+- `tests`: deterministic Lune tests for inventory, production, transaction idempotency, and placement rules.
+
+## Current systems foundation
+
+The server accepts shared-company building intents through `SubmitAction`. `BuildingService` validates known definitions, shared grid bounds, occupied cells, the company building cap, and inventory costs before recording placement. Successful placement is idempotent per actor and transaction id. Building positions and shared inventory are included in initial snapshots. The placement model currently stores grid coordinates only; rendering, plot ownership, terrain checks, and persistence of placements are follow-up work.
+
+Run `lune run tests/run.luau` after changing pure domain rules. It does not require Roblox Studio or a graphics-capable machine. Use `rojo build default.project.json -o outputs/IndustrialFrontier.rbxlx` to regenerate a place model for later Studio use.
 
 ## Security and authority
 
@@ -47,8 +52,6 @@ Clients send intent only. Server handlers validate payload types, bounds, rate l
 ## GitHub setup
 
 This scaffold is published on the `initial-scaffold` branch. Do not push it to `IceeDy/industrial_frontier`.
-
-Suggested initial commands:
 
 ```sh
 git clone https://github.com/IceeDy/industrial-frontier-roblox.git
@@ -63,4 +66,3 @@ git switch initial-scaffold
 - Add map geometry, lighting, industrial environment assets, and stylized character assets.
 - Configure a test universe and enable API Services only for that test universe.
 - Verify two-player flows, server shutdown/rejoin behavior, and DataStore failure handling in Studio.
-
