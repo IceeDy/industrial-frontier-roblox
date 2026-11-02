@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local Definitions = require(ReplicatedStorage.Shared.Remotes)
 local EconomyService = require(script.Services.EconomyService)
 local ProductionService = require(script.Services.ProductionService)
+local BuildingService = require(script.Services.BuildingService)
 local RateLimiter = require(script.Services.RateLimiter)
 
 local remoteRoot = ReplicatedStorage:FindFirstChild("Remotes") or Instance.new("Folder")
@@ -20,6 +21,7 @@ end
 
 local economy = EconomyService.new()
 local production = ProductionService.new(economy)
+local building = BuildingService.new(economy)
 local limiter = RateLimiter.new()
 local function validId(value)
 	return type(value) == "string" and #value >= 8 and #value <= 80 and value:match("^[%w%-_]+$") ~= nil
@@ -27,7 +29,7 @@ end
 
 remotes.RequestSnapshot.OnServerInvoke = function(player)
 	if not limiter:allow(player.UserId, "snapshot", 2, 1) then return { ok = false, code = "rate_limited" } end
-	return { ok = true, inventory = table.clone(economy.companyInventory.items) }
+	return { ok = true, inventory = table.clone(economy.companyInventory.items), buildings = building:getSnapshot() }
 end
 
 remotes.SubmitAction.OnServerEvent:Connect(function(player, payload)
@@ -39,9 +41,12 @@ remotes.SubmitAction.OnServerEvent:Connect(function(player, payload)
 	elseif payload.action == "produce" and type(payload.recipeId) == "string" then
 		local ok, result = production:run(payload.transactionId, payload.recipeId, payload.cycles, player.UserId)
 		remotes.SnapshotUpdated:FireAllClients({ kind = "production", ok = ok, result = result })
+	elseif payload.action == "build" and type(payload.buildingId) == "string" and type(payload.position) == "table" then
+		local ok, result = building:place(payload.transactionId, payload.buildingId, payload.position, player.UserId)
+		remotes.SnapshotUpdated:FireAllClients({ kind = "building", ok = ok, result = result })
 	end
 end)
 
 Players.PlayerAdded:Connect(function(player)
-	remotes.SnapshotUpdated:FireClient(player, { kind = "snapshot", inventory = table.clone(economy.companyInventory.items) })
+	remotes.SnapshotUpdated:FireClient(player, { kind = "snapshot", inventory = table.clone(economy.companyInventory.items), buildings = building:getSnapshot() })
 end)
