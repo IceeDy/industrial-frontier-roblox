@@ -1,0 +1,4 @@
+[tools]
+
+[scripts]
+test = "lune run tests/run.luau"
