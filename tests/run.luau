@@ -2,6 +2,7 @@ local Inventory = require("../src/shared/Inventory")
 local Production = require("../src/shared/Production")
 local Economy = require("../src/shared/Economy")
 local Ledger = require("../src/shared/TransactionLedger")
+local Placement = require("../src/shared/BuildingPlacement")
 
 local passed = 0
 local function test(name, fn)
@@ -43,6 +44,23 @@ test("transaction ledger returns an existing result for duplicate ids", function
 	local first = Ledger.record(ledger, "transaction-0001", { ok = true, total = 25 })
 	local inserted, duplicate = Ledger.record(ledger, "transaction-0001", { ok = true, total = 99 })
 	equal(first, true); equal(inserted, false); equal(duplicate.total, 25)
+end)
+
+test("building placement accepts snapped coordinates within the shared build area", function()
+	local ok = Placement.validate({ x = 32, z = -16 }, 0)
+	equal(ok, true)
+end)
+
+test("building placement rejects off-grid and out-of-bounds coordinates", function()
+	local offGrid, offGridCode = Placement.validate({ x = 3, z = 0 }, 0)
+	local outside, outsideCode = Placement.validate({ x = 528, z = 0 }, 0)
+	equal(offGrid, false); equal(offGridCode, "off_grid")
+	equal(outside, false); equal(outsideCode, "outside_build_area")
+end)
+
+test("building placement enforces a company building cap", function()
+	local ok, code = Placement.validate({ x = 0, z = 0 }, Placement.MAX_BUILDINGS)
+	equal(ok, false); equal(code, "building_limit")
 end)
 
 print(string.format("%d tests passed", passed))
