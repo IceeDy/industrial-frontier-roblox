@@ -10,7 +10,7 @@ end
 
 function Production.run(inventory, recipe, cycles)
 	cycles = cycles or 1
-	if type(cycles) ~= "number" or cycles < 1 or cycles % 1 ~= 0 then return false, "invalid_cycles" end
+	if type(cycles) ~= "number" or cycles < 1 or cycles > 100 or cycles % 1 ~= 0 then return false, "invalid_cycles" end
 	local inputs, outputs = {}, {}
 	for id, amount in pairs(recipe.inputs) do inputs[id] = amount * cycles end
 	for id, amount in pairs(recipe.outputs) do outputs[id] = amount * cycles end
