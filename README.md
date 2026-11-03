@@ -32,14 +32,14 @@ The scaffold deliberately contains no Roblox credentials. Roblox Studio executio
 
 - `src/shared`: deterministic domain rules and definitions shared by server and client.
 - `src/server`: server-owned transaction, production, building, logistics, remote, and persistence adapters.
-- `src/client`: client presentation and third-person camera setup.
+- `src/client`: client presentation, planetary operations interface, and third-person camera setup.
 - `tests`: deterministic Lune tests for inventory, production, transaction idempotency, placement, logistics, and export rules.
 
 ## Current systems foundation
 
 The server accepts planetary building, production, logistics, and export actions through `SubmitAction`. Buildings have planet IDs and local inventories. Production runs only at a compatible building. Same-planet logistics routes connect facilities with the shared company inventory; route and receiving storage capacities are enforced. Exporting from shared inventory adds credits and increases market supply. The snapshot includes planet definitions, buildings, facility inventories, and routes.
 
-`Planets.lua` starts with three editable prototype destinations: Nova Terra, Ferrum, and Pelagia. Names and resource distributions are placeholders. The systems currently run in memory. Route transfers are player-triggered; automatic schedules, persistent saves, export contracts, and the planet-navigation UI remain follow-up work. The placement model stores grid coordinates; rendering, plot ownership, and terrain checks also need a later Studio pass.
+`Planets.lua` starts with three editable prototype destinations: Nova Terra, Ferrum, and Pelagia. Names and resource distributions are placeholders. The `PlanetNavigation` client interface provides planet, build, production, logistics, and trade tabs. These systems are in-memory; route transfers are player-triggered, and automatic schedules, persistent saves, and export contracts remain follow-up work. The placement model stores grid coordinates; rendering, plot ownership, terrain checks, and visual Studio review remain.
 
 Run `lune run tests/run.luau` after changing pure domain rules. It does not require Roblox Studio or a graphics-capable machine. Use `rojo build default.project.json -o outputs/IndustrialFrontier.rbxlx` to regenerate a place model for later Studio use.
 
@@ -63,8 +63,8 @@ git switch initial-scaffold
 ## Manual Studio follow-up
 
 - Create a new Roblox experience and connect it through Rojo.
-- Review the default spawn and camera feel on keyboard, touch, and controller.
-- Create and inspect the RemoteEvent/RemoteFunction instances after sync.
+- Review the planetary panel layout on keyboard, touch, and controller.
+- Connect the Rojo plugin and verify the remotes after sync.
 - Add map geometry, lighting, industrial environment assets, and stylized character assets.
 - Configure a test universe and enable API Services only for that test universe.
 - Verify two-player flows, server shutdown/rejoin behavior, and DataStore failure handling in Studio.
