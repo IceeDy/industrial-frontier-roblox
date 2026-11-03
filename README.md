@@ -12,7 +12,7 @@ An independent Roblox prototype scaffold for a multiplayer industrial economy. T
 
 ## Requirements
 
-- Roblox Studio (only needed for visual iteration and publishing)
+- Roblox Studio for visual iteration and publishing (not needed for local domain tests)
 - [Rokit](https://github.com/rojo-rbx/rokit) toolchain manager
 - [Rojo](https://rojo.space/) 7.x
 - [Lune](https://lune-org.github.io/) for standalone domain tests
@@ -31,13 +31,15 @@ The scaffold deliberately contains no Roblox credentials. Roblox Studio executio
 ## Layout
 
 - `src/shared`: deterministic domain rules and definitions shared by server and client.
-- `src/server`: server-owned transaction, production, building, remote, and persistence adapters.
+- `src/server`: server-owned transaction, production, building, logistics, remote, and persistence adapters.
 - `src/client`: client presentation and third-person camera setup.
-- `tests`: deterministic Lune tests for inventory, production, transaction idempotency, and placement rules.
+- `tests`: deterministic Lune tests for inventory, production, transaction idempotency, placement, logistics, and export rules.
 
 ## Current systems foundation
 
-The server accepts shared-company building intents through `SubmitAction`. `BuildingService` validates known definitions, shared grid bounds, occupied cells, the company building cap, and inventory costs before recording placement. Successful placement is idempotent per actor and transaction id. Building positions and shared inventory are included in initial snapshots. The placement model currently stores grid coordinates only; rendering, plot ownership, terrain checks, and persistence of placements are follow-up work.
+The server accepts planetary building, production, logistics, and export actions through `SubmitAction`. Buildings have planet IDs and local inventories. Production runs only at a compatible building. Same-planet logistics routes connect facilities with the shared company inventory; route and receiving storage capacities are enforced. Exporting from shared inventory adds credits and increases market supply. The snapshot includes planet definitions, buildings, facility inventories, and routes.
+
+`Planets.lua` starts with three editable prototype destinations: Nova Terra, Ferrum, and Pelagia. Names and resource distributions are placeholders. The systems currently run in memory. Route transfers are player-triggered; automatic schedules, persistent saves, export contracts, and the planet-navigation UI remain follow-up work. The placement model stores grid coordinates; rendering, plot ownership, and terrain checks also need a later Studio pass.
 
 Run `lune run tests/run.luau` after changing pure domain rules. It does not require Roblox Studio or a graphics-capable machine. Use `rojo build default.project.json -o outputs/IndustrialFrontier.rbxlx` to regenerate a place model for later Studio use.
 
