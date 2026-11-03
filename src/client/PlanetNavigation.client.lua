@@ -210,7 +210,10 @@ redraw = function()
 	elseif state.tab == "Build" then
 		line("Choose a facility to place on " .. planet.displayName .. ".", 38, palette.muted, 13)
 		for buildingId, definition in pairs(buildings) do
-			actionButton(definition.displayName .. "  ·  " .. tostring(definition.buildCost.Credits or 0) .. " credits", function()
+			local costs = {}
+			for resourceId, amount in pairs(definition.buildCost) do table.insert(costs, tostring(amount) .. " " .. resourceId) end
+			table.sort(costs)
+			actionButton(definition.displayName .. "  ·  " .. table.concat(costs, ", "), function()
 				local count = 0
 				for _, building in ipairs(snapshot.buildings or {}) do if building.planetId == state.planetId then count += 1 end end
 				local x = (count % 12) * 16
